@@ -1,0 +1,45 @@
+cmake_minimum_required(VERSION 3.1)
+
+project(RealsenseCpature)
+set(CMAKE_CXX_STANDARD 11)
+
+
+set(OpenCV_STATIC ON)
+set(OpenCV_DIR D:/makedeps/build/OpenCV/buildwin64)
+find_package(OpenCV REQUIRED)
+
+set(WINDOWS TRUE CACHE INTERNAL "")
+set(PLATFORM_PREFIX "win64" CACHE INTERNAL "")
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+if (CMAKE_HOST_WIN32)
+    set(HOME_DIR $ENV{HOMEDRIVE}$ENV{HOMEPATH} CACHE INTERNAL "")
+else()
+    set(HOME_DIR $ENV{HOME} CACHE INTERNAL "")
+endif()
+if ("TEST$ENV{MAKE_DEPS_WORKING_DIR}" STREQUAL "TEST")
+    set(MAKE_DEPS_WORKING_DIR ${HOME_DIR}/makedeps)
+else()    
+    set(MAKE_DEPS_WORKING_DIR $ENV{MAKE_DEPS_WORKING_DIR})	
+endif()
+
+if (NOT ROOT_DIR_DEFINED)
+    add_definitions(-DROOT_DIR="${PROJECT_SOURCE_DIR}")
+    set(ROOT_DIR_DEFINED ON)
+endif()
+
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
+include(${MAKE_DEPS_WORKING_DIR}/${PLATFORM_PREFIX}/deps.cmake)
+
+find_package(realsense2 REQUIRED)
+
+include_directories(${OpenCV_INCLUDE_DIRS})
+
+include_directories(inc)
+
+
+FILE(GLOB_RECURSE CPP_SRC_LIST "src/*.cpp")
+
+add_executable(RealsenseCpature main.cpp ${CPP_SRC_LIST})
+target_link_libraries(RealsenseCpature ${OpenCV_LIBS}  realsense2::realsense2)
